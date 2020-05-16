@@ -16,16 +16,16 @@ void abandon(char message[])
 	exit(EXIT_FAILURE);
 }
 
-/* -- connexion vers un serveur TCP --- */
+// -- connexion vers un serveur TCP --- 
 int ouvrir_connexion_tcp(char nom_serveur[], int port_serveur)
 {
 	struct sockaddr_in addr_serveur;
     struct hostent *serveur;
     int fd;
-    fd = socket(AF_INET, SOCK_STREAM, 0); /* création prise */
+    fd = socket(AF_INET, SOCK_STREAM, 0); //création prise 
     if (fd < 0)
     	abandon("socket");
-    serveur = gethostbyname(nom_serveur); /* recherche adresse serveur */
+    serveur = gethostbyname(nom_serveur); //recherche adresse serveur 
     if (serveur == NULL)
     	abandon("gethostbyname");
     addr_serveur.sin_family = AF_INET;
@@ -40,9 +40,9 @@ void demander_document(int fd, char adresse_document[])
 {
 	char requete[TAILLE_TAMPON];
     int longueur;
-    /* constitution de la requête, suivie d'une ligne vide */
+    //constitution de la requête, suivie d'une ligne vide 
     longueur = snprintf(requete, TAILLE_TAMPON,"GET %s HTTP/1.0" CRLF CRLF,adresse_document);
-    write(fd, requete, longueur);       /* envoi */
+    write(fd, requete, longueur);       //envoi
 }
 void afficher_reponse(int fd)
 {
@@ -50,10 +50,10 @@ void afficher_reponse(int fd)
     int longueur;
     while (1) 
     {
-        longueur = read(fd, tampon, TAILLE_TAMPON);     /* lecture par bloc */
+        longueur = read(fd, tampon, TAILLE_TAMPON);     //lecture par bloc
         if (longueur <= 0)
         	break;
-        write(1, tampon, longueur);     /* copie sur sortie standard */
+        write(1, tampon, longueur);     //copie sur sortie standard 
     }
 }
       
