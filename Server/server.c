@@ -1,12 +1,3 @@
-/*Name : Jay Jagtap
-3154037
-Problem Statement: To achieve File transfer using TCP/IP Protocol
-*/
-
-/*
-    Server Side
-    Please pass port no as command line argument
-*/
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,60 +8,59 @@ Problem Statement: To achieve File transfer using TCP/IP Protocol
 #include <ctype.h>
 
 
-void error(const char *msg)
+void error(const char *msg)     //fonction pour les erreur
 {
     perror(msg);
     exit(1);
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char *argv[])              //fonction principal
 {
-     int sockfd, newsockfd, portno;
-     socklen_t clilen;
-     char buffer[512];
-     struct sockaddr_in serv_addr, cli_addr;
-     int n;
-     if (argc < 2) {
-         fprintf(stderr,"ERROR, no port provided\n");
-         exit(1);
-     }
-     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-     if (sockfd < 0) 
-        error("ERROR opening socket");
-     bzero((char *) &serv_addr, sizeof(serv_addr));
-     portno = atoi(argv[1]);
-     serv_addr.sin_family = AF_INET;
-     serv_addr.sin_addr.s_addr = INADDR_ANY;
-     serv_addr.sin_port = htons(portno);
-     if (bind(sockfd, (struct sockaddr *) &serv_addr,
-              sizeof(serv_addr)) < 0) 
-              error("ERROR on binding");
-     listen(sockfd,5);
-     clilen = sizeof(cli_addr);
-     newsockfd = accept(sockfd, 
-                 (struct sockaddr *) &cli_addr, 
-                 &clilen);
-     if (newsockfd < 0) 
-          error("ERROR on accept");
-          
-          
-          
-          FILE *fp;
-         int ch = 0;
-            fp = fopen("glad_receive.txt","a");            
-            int words;
-        read(newsockfd, &words, sizeof(int));
-            //printf("Passed integer is : %d\n" , words);      //Ignore , Line for Testing
-          while(ch != words)
-           {
-             read(newsockfd , buffer , 512); 
-         fprintf(fp , " %s" , buffer);   
-         //printf(" %s %d "  , buffer , ch); //Line for Testing , Ignore
-         ch++;
-       }
-        printf("The file was received successfully\n");
-       printf("The new file created is glad5.txt");
-     close(newsockfd);
-     close(sockfd);
-     return 0; 
+    int sockfd, newsockfd, portno;            //declaration des variavle qu'on va utiliser
+    socklen_t clilen;
+    char buffer[512];
+    struct sockaddr_in serv_addr, cli_addr;   //creation du structure sockaddr_in pour les sin
+    int n;
+    if (argc < 2) //réception des paramètres de la ligne de commande
+    {
+        fprintf(stderr,"ERREUR, aucun port fourni\n");
+        exit(1);
+    }
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);  //socket(domaine, type, protocole) 
+    if (sockfd < 0) 
+        error("ERREUR ouverture socket");
+    bzero((char *) &serv_addr, sizeof(serv_addr));
+    portno = atoi(argv[1]);
+    //Remplissage adresse serveur
+    serv_addr.sin_family = AF_INET;           //donne la famille d'adresses, qui vaut AF_INET
+    serv_addr.sin_addr.s_addr = INADDR_ANY;   //pour l'adresse IP
+    serv_addr.sin_port = htons(portno);       //pour le numéro de port
+    if (bind(sockfd, (struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) //Cette routine attache une adresse (port) à une
+        error("ERREUR lors de la liaison");                                 //socket, la socket créée par la routine socket()
+    listen(sockfd,5);  //cette routine donne la longueur maximale de la queue d'attente des demandes de connexions non servies (par exemple 5)
+    clilen = sizeof(cli_addr);  
+    newsockfd = accept(sockfd,(struct sockaddr *) &cli_addr,&clilen); //pour  dialoguer avec le client, attend les demandes de connexion
+    if (newsockfd < 0) 
+        error("ERREUR lors de l'acceptation");
+
+    //Reception du fichier
+    FILE *fp;
+    int ch = 0;
+    fp = fopen("texte.txt","a");
+    int words;
+    read(newsockfd, &words, sizeof(int));
+    while(ch != words)
+    {
+        read(newsockfd , buffer , 512); 
+        fprintf(fp , " %s" , buffer);   
+        ch++;
+    }
+
+    //Message afficher
+    printf("Le fichier a été reçu avec succès\n");
+    printf("Le nouveau fichier créé est texte.txt\n");
+    //Ferme et enlèvement de la liste des clients
+    close(newsockfd);
+    close(sockfd);
+    return 0; 
 }
